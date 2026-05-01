@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Peternakan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Animasi sederhana untuk transisi tab */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-green-700 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-cow text-2xl mr-2"></i>
+                    <span class="font-bold text-xl">Sistem Peternakan</span>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-white hover:text-green-200 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="switchTab('dashboard')" class="tab-btn px-3 py-2 rounded-md text-sm font-medium bg-green-900" data-target="dashboard">Dashboard</button>
+                        <button onclick="switchTab('stok')" class="tab-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600" data-target="stok">Stok Hewan</button>
+                        <button onclick="switchTab('penjualan')" class="tab-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600" data-target="penjualan">Penjualan</button>
+                        <button onclick="switchTab('logistik')" class="tab-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600" data-target="logistik">Logistik</button>
+                        <button onclick="switchTab('keuangan')" class="tab-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600" data-target="keuangan">Keuangan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="md:hidden hidden bg-green-800">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <button onclick="switchTab('dashboard'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-green-900">Dashboard</button>
+                <button onclick="switchTab('stok'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-green-600 hover:text-white">Stok Hewan</button>
+                <button onclick="switchTab('penjualan'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-green-600 hover:text-white">Penjualan</button>
+                <button onclick="switchTab('logistik'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-green-600 hover:text-white">Logistik</button>
+                <button onclick="switchTab('keuangan'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-green-600 hover:text-white">Keuangan</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ================= DASHBOARD ================= -->
+        <div id="view-dashboard" class="view-section fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Ringkasan Peternakan</h2>
+            
+            <!-- Keuangan Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Card Saldo Kas -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase">Total Kas Saat Ini</p>
+                            <p class="mt-1 text-2xl font-bold text-gray-900" id="dash-kas">Rp 0</p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fa-solid fa-wallet text-blue-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Piutang -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase">Piutang (Sisa Pembayaran)</p>
+                            <p class="mt-1 text-2xl font-bold text-gray-900" id="dash-piutang">Rp 0</p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fa-solid fa-file-invoice-dollar text-yellow-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Laba Rugi -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500 relative overflow-hidden">
+                    <div class="flex items-center justify-between relative z-10">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase">Laba / Rugi Berjalan</p>
+                            <p class="mt-1 text-2xl font-bold text-gray-900" id="dash-laba-rugi">Rp 0</p>
+                            <p class="text-[10px] text-gray-400 mt-1">*Tidak termasuk modal awal/investor</p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <i class="fa-solid fa-chart-line text-purple-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stok Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Card Sapi -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase">Sapi di Kandang</p>
+                            <p class="mt-1 text-2xl font-bold text-gray-900" id="dash-sapi-total">0 Ekor</p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fa-solid fa-hippo text-green-500 text-xl"></i> <!-- Hippo as fallback -->
+                        </div>
+                    </div>
+                    <div class="border-t pt-3 mt-auto">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Tersedia (Siap Jual):</span>
+                            <span class="font-bold text-green-600" id="dash-sapi-tersedia">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Terjual (Titip/DP):</span>
+                            <span class="font-bold text-yellow-600" id="dash-sapi-terjual">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Sakit:</span>
+                            <span class="font-bold text-red-500" id="dash-sapi-sakit">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Domba -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-gray-500 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase">Domba di Kandang</p>
+                            <p class="mt-1 text-2xl font-bold text-gray-900" id="dash-domba-total">0 Ekor</p>
+                        </div>
+                        <div class="p-3 bg-gray-100 rounded-full">
+                            <i class="fa-solid fa-paw text-gray-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="border-t pt-3 mt-auto">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Tersedia (Siap Jual):</span>
+                            <span class="font-bold text-green-600" id="dash-domba-tersedia">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Terjual (Titip/DP):</span>
+                            <span class="font-bold text-yellow-600" id="dash-domba-terjual">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Sakit:</span>
+                            <span class="font-bold text-red-500" id="dash-domba-sakit">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grafik Penjualan dan Pelanggan Teratas -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Grafik -->
+                <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2 text-gray-800">Grafik Pendapatan Penjualan (7 Hari Terakhir)</h3>
+                    <canvas id="salesChart" height="100"></canvas>
+                </div>
+                
+                <!-- Data Konsumen Terbanyak -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2 text-gray-800">Top Pelanggan</h3>
+                    <ul id="top-customers" class="divide-y divide-gray-200">
+                        <!-- JS Render -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= STOK HEWAN ================= -->
+        <div id="view-stok" class="view-section hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Manajemen Stok Hewan</h2>
+            
+            <!-- Form Tambah Hewan -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4 border-b pb-2">Tambah Stok Baru</h3>
+                <form id="form-hewan" class="grid grid-cols-1 md:grid-cols-3 gap-4" onsubmit="tambahHewan(event)">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ID / Tag Telinga</label>
+                        <input type="text" id="h-id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jenis Hewan</label>
+                        <select id="h-jenis" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                            <option value="Sapi">Sapi</option>
+                            <option value="Domba">Domba</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
+                        <select id="h-kelamin" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                            <option value="Jantan">Jantan</option>
+                            <option value="Betina">Betina</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Bobot Masuk (Kg)</label>
+                        <input type="number" id="h-bobot" step="0.1" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Harga Modal (Rp)</label>
+                        <input type="number" id="h-modal" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition">
+                            <i class="fa-solid fa-plus mr-2"></i> Tambah ke Kandang
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabel Stok -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b">
+                    <h3 class="text-lg font-semibold">Daftar Hewan di Kandang</h3>
+                    <p class="text-sm text-gray-500">Menampilkan hewan yang belum dikirim atau belum dinyatakan mati.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Tag</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis & Kelamin</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bobot Masuk</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-stok" class="bg-white divide-y divide-gray-200 text-sm">
+                            <!-- Rows rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PENJUALAN ================= -->
+        <div id="view-penjualan" class="view-section hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Transaksi Penjualan</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Form Kasir -->
+                <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2">Buat Transaksi Baru</h3>
+                    
+                    <!-- Data Konsumen -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nama Konsumen</label>
+                            <input type="text" id="t-nama" class="mt-1 block w-full border rounded p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">No. Telepon / WA</label>
+                            <input type="text" id="t-telp" class="mt-1 block w-full border rounded p-2">
+                        </div>
+                    </div>
+
+                    <!-- Pilih Hewan -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Hewan (Tersedia)</label>
+                        <div class="flex gap-2">
+                            <select id="t-pilih-hewan" class="block w-full border rounded p-2">
+                                <!-- Options rendered by JS -->
+                            </select>
+                            <button type="button" onclick="tambahKeKeranjang()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 whitespace-nowrap">
+                                Tambah
+                            </button>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-2"><i class="fa-solid fa-circle-info"></i> <strong>Tips:</strong> Anda bisa menambahkan lebih dari 1 ekor. Pilih hewan lalu klik "Tambah" berulang kali untuk pembeli yang sama.</p>
+                    </div>
+
+                    <!-- Keranjang -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Hewan yang Dibeli:</h4>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">ID Tag</th>
+                                        <th class="px-4 py-2 text-left w-24">Bobot Keluar(Kg)</th>
+                                        <th class="px-4 py-2 text-left">Harga Jual (Rp)</th>
+                                        <th class="px-4 py-2 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="t-keranjang" class="divide-y divide-gray-200 bg-white">
+                                    <!-- Keranjang JS -->
+                                    <tr><td colspan="4" class="px-4 py-4 text-center text-gray-500 text-sm">Belum ada hewan dipilih</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Pembayaran & Simpan -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-bold text-gray-700">Total Harga Keseluruhan:</span>
+                            <span class="text-2xl font-bold text-green-600" id="t-total-harga">Rp 0</span>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Jumlah Uang Dibayar (DP / Lunas)</label>
+                            <input type="number" id="t-bayar" class="mt-1 block w-full border rounded p-2 text-lg font-bold" oninput="hitungSisa()">
+                            <p class="text-sm text-gray-500 mt-1" id="t-sisa-text">Sisa: Rp 0</p>
+                        </div>
+                        <button onclick="simpanTransaksi()" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded hover:bg-green-700">
+                            Simpan Transaksi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Petunjuk Ringkas -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2"><i class="fa-solid fa-circle-info text-blue-500 mr-2"></i> Info Alur</h3>
+                    <ul class="text-sm text-gray-600 space-y-3">
+                        <li><strong>1.</strong> Status akan otomatis <strong>Di-DP</strong> atau <strong>Lunas</strong> sesuai uang masuk.</li>
+                        <li><strong>2.</strong> Hewan yang terjual akan menunggu jadwal pengiriman.</li>
+                        <li><strong>3.</strong> Untuk memproses pengiriman hewan ke pembeli, silakan buka menu <strong>Logistik</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tabel Riwayat Penjualan -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b">
+                    <h3 class="text-lg font-semibold">Riwayat Transaksi Penjualan</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl & Konsumen</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hewan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keuangan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-transaksi" class="bg-white divide-y divide-gray-200 text-sm">
+                            <!-- Rows rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LOGISTIK & PENGIRIMAN ================= -->
+        <div id="view-logistik" class="view-section hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Logistik & Pengiriman Sapi/Domba</h2>
+            
+            <div class="grid grid-cols-1 gap-8">
+                <!-- Tabel Menunggu Pengiriman -->
+                <div class="bg-white rounded-lg shadow overflow-hidden border-l-4 border-yellow-500">
+                    <div class="px-6 py-4 border-b bg-yellow-50 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-yellow-800">Menunggu Pengiriman</h3>
+                            <p class="text-sm text-yellow-600">Daftar transaksi yang hewannya masih ada di kandang.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Transaksi / Tgl</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Konsumen</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rincian Hewan</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi Validasi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-logistik-pending" class="bg-white divide-y divide-gray-200 text-sm">
+                                <!-- Rows rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tabel Riwayat Pengiriman -->
+                <div class="bg-white rounded-lg shadow overflow-hidden border-l-4 border-green-500">
+                    <div class="px-6 py-4 border-b bg-green-50">
+                        <h3 class="text-lg font-semibold text-green-800">Riwayat Kendaraan Keluar (Terkirim)</h3>
+                        <p class="text-sm text-green-600">Daftar hewan yang sudah dibawa keluar kandang.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Kirim</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Konsumen & TRX</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Ekspedisi / Driver</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hewan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-logistik-riwayat" class="bg-white divide-y divide-gray-200 text-sm">
+                                <!-- Rows rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= KAS & KEUANGAN ================= -->
+        <div id="view-keuangan" class="view-section hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Kas & Laba Rugi</h2>
+            
+            <!-- Form Input Keuangan -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4 border-b pb-2">Catat Arus Kas Manual</h3>
+                <form id="form-kas" class="grid grid-cols-1 md:grid-cols-4 gap-4" onsubmit="catatKas(event)">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tipe</label>
+                        <select id="k-tipe" class="mt-1 block w-full rounded-md border-gray-300 border p-2">
+                            <option value="Masuk">Pemasukan (Masuk)</option>
+                            <option value="Keluar">Pengeluaran (Keluar)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                        <select id="k-kategori" class="mt-1 block w-full rounded-md border-gray-300 border p-2">
+                            <!-- Kategori Baru untuk Pendanaan Awal -->
+                            <option value="Modal / Dana Investor" class="font-bold text-blue-600">Modal / Dana Investor</option>
+                            <!-- Kategori Beban -->
+                            <option value="Pakan / Rumput">Pakan / Rumput</option>
+                            <option value="Gaji Pegawai">Gaji Pegawai</option>
+                            <option value="Obat / Vitamin">Obat / Vitamin</option>
+                            <option value="Operasional Lainnya">Operasional Lainnya</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nominal (Rp)</label>
+                        <input type="number" id="k-nominal" required class="mt-1 block w-full rounded-md border-gray-300 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Keterangan</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="text" id="k-ket" class="block w-full rounded-md border-gray-300 border p-2" placeholder="Cth: Beli ampas tahu">
+                            <button type="submit" class="bg-blue-600 text-white px-4 rounded hover:bg-blue-700">Simpan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabel Kas & Ringkasan Laba Rugi -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b">
+                    <h3 class="text-lg font-semibold mb-4">Buku Kas & Ringkasan Laba Rugi</h3>
+                    
+                    <!-- SUMMARY CARDS (Pendapatan vs Pengeluaran) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <p class="text-sm text-green-700 font-semibold">Total Pendapatan Riil</p>
+                            <p class="text-xl font-bold text-green-800" id="k-pendapatan">Rp 0</p>
+                            <p class="text-[10px] text-green-600 mt-1">Dari hasil penjualan hewan</p>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                            <p class="text-sm text-red-700 font-semibold">Total Beban & Modal Hewan</p>
+                            <p class="text-xl font-bold text-red-800" id="k-pengeluaran">Rp 0</p>
+                            <p class="text-[10px] text-red-600 mt-1">Seluruh pengeluaran kas</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <p class="text-sm text-purple-700 font-semibold">Laba / Rugi Bersih</p>
+                            <p class="text-xl font-bold text-purple-800" id="k-labarugi">Rp 0</p>
+                            <p class="text-[10px] text-purple-600 mt-1">Pendapatan dikurangi Beban</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded border">
+                        <span class="text-sm text-gray-500">Saldo Akhir di Tangan (Termasuk Modal Investor):</span>
+                        <span class="text-lg font-bold text-blue-600" id="k-saldo-akhir">Rp 0</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-kas" class="bg-white divide-y divide-gray-200 text-sm">
+                            <!-- Rows rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Update Status Hewan -->
+    <div id="modal-status-hewan" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2">Ubah Status Hewan</h3>
+            <p class="mb-4 text-sm text-gray-600">ID Hewan: <span id="m-sh-id" class="font-bold text-gray-900"></span></p>
+            <input type="hidden" id="m-sh-hidden">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Status Baru</label>
+                <select id="m-sh-status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                    <option value="Tersedia">Tersedia (Sehat)</option>
+                    <option value="Sakit">Sakit</option>
+                    <option value="Mati">Mati</option>
+                </select>
+                <p class="text-xs text-red-500 mt-2">*Perhatian: Jika status diubah menjadi "Mati", hewan akan dihapus dari ketersediaan stok aktif.</p>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="tutupModalStatusHewan()" class="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300 font-medium">Batal</button>
+                <button onclick="simpanStatusHewan()" class="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-700 font-medium">Simpan Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pelunasan -->
+    <div id="modal-pelunasan" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4">Pelunasan Transaksi</h3>
+            <p class="mb-2">ID Transaksi: <span id="m-id-trans" class="font-bold"></span></p>
+            <p class="mb-4">Sisa yang harus dibayar: <span id="m-sisa" class="font-bold text-red-600"></span></p>
+            <input type="hidden" id="m-id-hidden">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Nominal Pelunasan (Rp)</label>
+                <input type="number" id="m-nominal" class="mt-1 block w-full border rounded p-2">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="tutupModal()" class="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300">Batal</button>
+                <button onclick="prosesPelunasan()" class="px-4 py-2 bg-green-600 rounded text-white hover:bg-green-700">Proses Lunas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Validasi Pengiriman Logistik -->
+    <div id="modal-pengiriman" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2">Validasi Pengiriman (Surat Jalan)</h3>
+            <p class="mb-4 text-sm text-gray-600">ID Transaksi: <span id="l-id-trans" class="font-bold text-gray-900"></span></p>
+            <input type="hidden" id="l-id-hidden">
+            
+            <div class="space-y-3 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">No. Surat Jalan</label>
+                    <input type="text" id="l-surat-jalan" class="mt-1 block w-full border border-gray-300 rounded p-2" placeholder="Contoh: SJ-001/2023">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Pengambil / Driver</label>
+                    <input type="text" id="l-driver" class="mt-1 block w-full border border-gray-300 rounded p-2" placeholder="Nama sopir atau pembeli">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">No. HP Driver</label>
+                    <input type="text" id="l-hp" class="mt-1 block w-full border border-gray-300 rounded p-2" placeholder="08123xxxx">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">No. Kendaraan (Plat)</label>
+                    <input type="text" id="l-plat" class="mt-1 block w-full border border-gray-300 rounded p-2" placeholder="D 1234 ABC">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-2">
+                <button onclick="tutupModalPengiriman()" class="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300 font-medium">Batal</button>
+                <button onclick="prosesPengiriman()" class="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-700 font-medium"><i class="fa-solid fa-truck-fast mr-1"></i> Kirim Hewan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center mx-4">
+            <div class="mb-6 text-gray-800" id="alert-message"></div>
+            <button onclick="closeAlert()" class="px-6 py-2 bg-green-600 rounded text-white font-bold hover:bg-green-700 w-full">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-confirm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center mx-4">
+            <div class="mb-6 text-gray-800" id="confirm-message"></div>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeConfirm(false)" class="px-4 py-2 w-full bg-gray-200 rounded text-gray-800 font-bold hover:bg-gray-300">Batal</button>
+                <button onclick="closeConfirm(true)" class="px-4 py-2 w-full bg-blue-600 rounded text-white font-bold hover:bg-blue-700">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic (JavaScript) -->
+    <script>
+        // ================= STATE MANAGEMENT =================
+        let state = {
+            hewan: JSON.parse(localStorage.getItem('db_hewan')) || [],
+            transaksi: JSON.parse(localStorage.getItem('db_transaksi')) || [],
+            kas: JSON.parse(localStorage.getItem('db_kas')) || [],
+            keranjang: [] 
+        };
+
+        let salesChartInstance = null;
+
+        // ================= CUSTOM MODALS =================
+        let confirmCallback = null;
+
+        function showAlert(msg) {
+            document.getElementById('alert-message').innerText = msg;
+            document.getElementById('custom-alert').classList.remove('hidden');
+            document.getElementById('custom-alert').classList.add('flex');
+        }
+
+        function closeAlert() {
+            document.getElementById('custom-alert').classList.add('hidden');
+            document.getElementById('custom-alert').classList.remove('flex');
+        }
+
+        function showConfirm(msg, callback) {
+            document.getElementById('confirm-message').innerText = msg;
+            confirmCallback = callback;
+            document.getElementById('custom-confirm').classList.remove('hidden');
+            document.getElementById('custom-confirm').classList.add('flex');
+        }
+
+        function closeConfirm(result) {
+            document.getElementById('custom-confirm').classList.add('hidden');
+            document.getElementById('custom-confirm').classList.remove('flex');
+            if (confirmCallback) confirmCallback(result);
+            confirmCallback = null;
+        }
+
+        function saveState() {
+            localStorage.setItem('db_hewan', JSON.stringify(state.hewan));
+            localStorage.setItem('db_transaksi', JSON.stringify(state.transaksi));
+            localStorage.setItem('db_kas', JSON.stringify(state.kas));
+            renderAll();
+        }
+
+        // ================= UTILITIES =================
+        const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
+        const formatDate = (dateStr) => {
+            const d = new Date(dateStr);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        };
+
+        // ================= NAVIGATION =================
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.dataset.target === tabId) {
+                    btn.classList.add('bg-green-900');
+                    btn.classList.remove('hover:bg-green-600');
+                } else {
+                    btn.classList.remove('bg-green-900');
+                    btn.classList.add('hover:bg-green-600');
+                }
+            });
+            renderAll();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // ================= RENDER FUNCTIONS =================
+        function renderAll() {
+            renderDashboard();
+            renderStok();
+            renderPilihanHewan();
+            renderTransaksi();
+            renderLogistik();
+            renderKas();
+        }
+
+        function renderDashboard() {
+            // Filter Sapi
+            const sapiKandang = state.hewan.filter(h => h.jenis === 'Sapi' && h.status !== 'Terkirim' && h.status !== 'Mati');
+            const sapiTersedia = sapiKandang.filter(h => h.status === 'Tersedia').length;
+            const sapiSakit = sapiKandang.filter(h => h.status === 'Sakit').length;
+            const sapiTerjual = sapiKandang.filter(h => h.status === 'Di-DP' || h.status === 'Lunas').length; 
+
+            // Filter Domba
+            const dombaKandang = state.hewan.filter(h => h.jenis === 'Domba' && h.status !== 'Terkirim' && h.status !== 'Mati');
+            const dombaTersedia = dombaKandang.filter(h => h.status === 'Tersedia').length;
+            const dombaSakit = dombaKandang.filter(h => h.status === 'Sakit').length;
+            const dombaTerjual = dombaKandang.filter(h => h.status === 'Di-DP' || h.status === 'Lunas').length;
+            
+            // Hitung Kas, Pendapatan, Pengeluaran & Piutang
+            let totalKas = 0; 
+            let totalPendapatan = 0;
+            let totalPengeluaran = 0;
+            
+            state.kas.forEach(k => { 
+                if (k.tipe === 'Masuk') {
+                    totalKas += k.nominal;
+                    if (k.kategori !== 'Modal / Dana Investor') {
+                        totalPendapatan += k.nominal; // Hanya uang hasil bisnis
+                    }
+                } else if (k.tipe === 'Keluar') {
+                    totalKas -= k.nominal;
+                    totalPengeluaran += k.nominal; // Seluruh pengeluaran beban & modal hewan
+                }
+            });
+            
+            let labaRugiBersih = totalPendapatan - totalPengeluaran;
+            let piutang = 0; state.transaksi.forEach(t => { piutang += t.sisa; });
+
+            // Tampilkan ke Dashboard (Sapi)
+            document.getElementById('dash-sapi-total').innerText = `${sapiKandang.length} Ekor`;
+            document.getElementById('dash-sapi-tersedia').innerText = `${sapiTersedia}`;
+            document.getElementById('dash-sapi-terjual').innerText = `${sapiTerjual}`;
+            document.getElementById('dash-sapi-sakit').innerText = `${sapiSakit}`;
+
+            // Tampilkan ke Dashboard (Domba)
+            document.getElementById('dash-domba-total').innerText = `${dombaKandang.length} Ekor`;
+            document.getElementById('dash-domba-tersedia').innerText = `${dombaTersedia}`;
+            document.getElementById('dash-domba-terjual').innerText = `${dombaTerjual}`;
+            document.getElementById('dash-domba-sakit').innerText = `${dombaSakit}`;
+
+            // Tampilkan Keuangan
+            document.getElementById('dash-kas').innerText = formatRp(totalKas);
+            document.getElementById('dash-piutang').innerText = formatRp(piutang);
+            
+            // Tampilkan Laba Rugi di Dashboard dengan logika warna
+            const elLabaRugi = document.getElementById('dash-laba-rugi');
+            elLabaRugi.innerText = formatRp(labaRugiBersih);
+            if(labaRugiBersih >= 0) {
+                elLabaRugi.classList.remove('text-red-600', 'text-gray-900');
+                elLabaRugi.classList.add('text-green-600');
+            } else {
+                elLabaRugi.classList.remove('text-green-600', 'text-gray-900');
+                elLabaRugi.classList.add('text-red-600');
+            }
+
+            // Render Chart & Top Pelanggan (Sama seperti V3)
+            renderDashboardExtras();
+        }
+
+        function renderDashboardExtras() {
+            const customerMap = {};
+            state.transaksi.forEach(t => {
+                const name = t.konsumen.nama;
+                if(!customerMap[name]) customerMap[name] = { nama: name, totalSpent: 0, itemsCount: 0 };
+                customerMap[name].totalSpent += t.total;
+                customerMap[name].itemsCount += t.items.length;
+            });
+            const topCustomers = Object.values(customerMap).sort((a, b) => b.totalSpent - a.totalSpent).slice(0, 5);
+            
+            const topCustomersEl = document.getElementById('top-customers');
+            topCustomersEl.innerHTML = '';
+            if(topCustomers.length === 0) {
+                topCustomersEl.innerHTML = '<li class="py-4 text-sm text-gray-500 text-center">Belum ada data pelanggan</li>';
+            } else {
+                topCustomers.forEach(c => {
+                    topCustomersEl.innerHTML += `
+                        <li class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${c.nama}</p>
+                                <p class="text-xs text-gray-500">${c.itemsCount} ekor dibeli</p>
+                            </div>
+                            <div class="text-sm font-bold text-green-600">${formatRp(c.totalSpent)}</div>
+                        </li>
+                    `;
+                });
+            }
+
+            const last7Days = [];
+            for(let i=6; i>=0; i--) {
+                let d = new Date(); d.setDate(d.getDate() - i);
+                let yyyy = d.getFullYear(); let mm = String(d.getMonth() + 1).padStart(2, '0'); let dd = String(d.getDate()).padStart(2, '0');
+                last7Days.push(`${yyyy}-${mm}-${dd}`);
+            }
+
+            const salesData = last7Days.map(dateStr => {
+                return state.transaksi.filter(t => t.tanggal.startsWith(dateStr)).reduce((sum, t) => sum + t.total, 0);
+            });
+
+            const displayLabels = last7Days.map(dateStr => {
+                const [, m, d] = dateStr.split('-'); return `${d}/${m}`;
+            });
+
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if(salesChartInstance) salesChartInstance.destroy(); 
+            
+            salesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: displayLabels,
+                    datasets: [{
+                        label: 'Pendapatan (Rp)', data: salesData,
+                        backgroundColor: 'rgba(34, 197, 94, 0.7)', borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if(value >= 1000000) return 'Rp ' + (value/1000000) + 'Jt';
+                                    if(value >= 1000) return 'Rp ' + (value/1000) + 'Rb';
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderStok() {
+            const tbody = document.getElementById('table-stok');
+            tbody.innerHTML = '';
+            // Tampilkan yang belum dikirim & tidak mati
+            const stokAktif = state.hewan.filter(h => h.status !== 'Terkirim' && h.status !== 'Mati');
+            
+            if(stokAktif.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data hewan di kandang.</td></tr>`;
+                return;
+            }
+
+            stokAktif.forEach(h => {
+                let badgeColor = h.status === 'Tersedia' ? 'bg-green-100 text-green-800' : 
+                                 h.status === 'Sakit' ? 'bg-red-100 text-red-800' :
+                                 h.status === 'Di-DP' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800';
+                
+                // Disable ubah status jika sudah terjual (Di-DP/Lunas)
+                let btnDisable = (h.status === 'Di-DP' || h.status === 'Lunas') ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 text-gray-600';
+                let btnClick = (h.status === 'Di-DP' || h.status === 'Lunas') ? `onclick="showAlert('Hewan ini sudah masuk transaksi pembeli, status tidak dapat diubah.')"` : `onclick="bukaModalStatusHewan('${h.id}')"`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${h.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${h.jenis} - ${h.kelamin}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${h.bobotMasuk} Kg</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatRp(h.hargaModal)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeColor}">
+                                ${h.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <button ${btnClick} class="p-2 rounded transition ${btnDisable}" title="Ubah Status">
+                                <i class="fa-solid fa-notes-medical"></i> Ubah
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================= FUNGSI UPDATE STATUS HEWAN =================
+        function bukaModalStatusHewan(id) {
+            const h = state.hewan.find(x => x.id === id);
+            if(!h) return;
+            document.getElementById('m-sh-id').innerText = h.id;
+            document.getElementById('m-sh-hidden').value = h.id;
+            document.getElementById('m-sh-status').value = h.status === 'Sakit' ? 'Sakit' : 'Tersedia'; // Defaultkan
+            document.getElementById('modal-status-hewan').classList.remove('hidden');
+            document.getElementById('modal-status-hewan').classList.add('flex');
+        }
+
+        function tutupModalStatusHewan() {
+            document.getElementById('modal-status-hewan').classList.add('hidden');
+            document.getElementById('modal-status-hewan').classList.remove('flex');
+        }
+
+        function simpanStatusHewan() {
+            const id = document.getElementById('m-sh-hidden').value;
+            const newStatus = document.getElementById('m-sh-status').value;
+            
+            const hIndex = state.hewan.findIndex(x => x.id === id);
+            if(hIndex === -1) return;
+
+            if (newStatus === 'Mati') {
+                showConfirm("Yakin hewan ini mati? Data hewan akan dihapus dari ketersediaan stok.", function(yes) {
+                    if(yes) {
+                        state.hewan[hIndex].status = 'Mati';
+                        saveState();
+                        tutupModalStatusHewan();
+                        showAlert("Status hewan telah diperbarui menjadi Mati.");
+                    }
+                });
+            } else {
+                state.hewan[hIndex].status = newStatus;
+                saveState();
+                tutupModalStatusHewan();
+                showAlert("Status hewan berhasil diperbarui.");
+            }
+        }
+
+        // ================= FUNGSI STOK HEWAN =================
+        function tambahHewan(e) {
+            e.preventDefault();
+            const id = document.getElementById('h-id').value.trim();
+            const jenis = document.getElementById('h-jenis').value;
+            const kelamin = document.getElementById('h-kelamin').value;
+            const bobot = parseFloat(document.getElementById('h-bobot').value);
+            const modal = parseFloat(document.getElementById('h-modal').value);
+
+            if(state.hewan.find(h => h.id === id)) { showAlert("ID / Tag Telinga sudah digunakan!"); return; }
+
+            state.hewan.push({ id, jenis, kelamin, bobotMasuk: bobot, hargaModal: modal, status: 'Tersedia' });
+            
+            showConfirm("Apakah Anda ingin mencatat ini sebagai Pengeluaran Pembelian di Kas?", function(isYes) {
+                if(isYes) {
+                    state.kas.push({
+                        id: 'KAS-' + Date.now(), tanggal: new Date().toISOString(), tipe: 'Keluar',
+                        kategori: 'Beli Hewan', nominal: modal, keterangan: `Pembelian 1 Ekor ${jenis} (${id})`
+                    });
+                }
+                saveState();
+                document.getElementById('form-hewan').reset();
+                showAlert("Hewan berhasil ditambahkan ke kandang!");
+            });
+        }
+
+        // ================= FUNGSI PENJUALAN (KASIR) =================
+        function renderPilihanHewan() {
+            const select = document.getElementById('t-pilih-hewan');
+            select.innerHTML = '<option value="">-- Pilih Hewan --</option>';
+            const tersedia = state.hewan.filter(h => h.status === 'Tersedia' && !state.keranjang.find(k => k.id === h.id));
+            tersedia.forEach(h => {
+                select.innerHTML += `<option value="${h.id}">${h.id} (${h.jenis} ${h.kelamin} - ${h.bobotMasuk}Kg)</option>`;
+            });
+        }
+
+        function tambahKeKeranjang() {
+            const id = document.getElementById('t-pilih-hewan').value;
+            if(!id) return;
+            const hewan = state.hewan.find(h => h.id === id);
+            
+            state.keranjang.push({ id: hewan.id, jenis: hewan.jenis, bobotKeluar: '', hargaJual: '' });
+            renderKeranjang(); renderPilihanHewan();
+        }
+
+        function hapusDariKeranjang(id) {
+            state.keranjang = state.keranjang.filter(k => k.id !== id);
+            renderKeranjang(); renderPilihanHewan(); hitungTotalJual();
+        }
+
+        function updateKeranjangItem(id, field, value) {
+            const item = state.keranjang.find(k => k.id === id);
+            if(item) { item[field] = value; hitungTotalJual(); }
+        }
+
+        function renderKeranjang() {
+            const tbody = document.getElementById('t-keranjang');
+            tbody.innerHTML = '';
+            if(state.keranjang.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-500 text-sm">Belum ada hewan dipilih</td></tr>`;
+                hitungTotalJual(); return;
+            }
+
+            state.keranjang.forEach(k => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-4 py-2 font-medium text-sm">${k.id} <br><span class="text-xs text-gray-500">${k.jenis}</span></td>
+                        <td class="px-4 py-2"><input type="number" step="0.1" class="w-full border rounded p-1 text-sm" placeholder="Kg" value="${k.bobotKeluar}" oninput="updateKeranjangItem('${k.id}', 'bobotKeluar', this.value)"></td>
+                        <td class="px-4 py-2"><input type="number" class="w-full border rounded p-1 text-sm" placeholder="Rp" value="${k.hargaJual}" oninput="updateKeranjangItem('${k.id}', 'hargaJual', parseFloat(this.value) || 0)"></td>
+                        <td class="px-4 py-2 text-center"><button onclick="hapusDariKeranjang('${k.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function hitungTotalJual() {
+            let total = 0; state.keranjang.forEach(k => { total += (parseFloat(k.hargaJual) || 0); });
+            document.getElementById('t-total-harga').innerText = formatRp(total);
+            document.getElementById('t-total-harga').dataset.val = total;
+            hitungSisa();
+        }
+
+        function hitungSisa() {
+            const total = parseFloat(document.getElementById('t-total-harga').dataset.val) || 0;
+            const bayar = parseFloat(document.getElementById('t-bayar').value) || 0;
+            const sisa = total - bayar;
+            
+            const elSisa = document.getElementById('t-sisa-text');
+            if(sisa > 0) { elSisa.innerText = `Sisa Pembayaran (Piutang): ${formatRp(sisa)}`; elSisa.className = "text-sm mt-1 text-red-600 font-semibold"; }
+            else if (sisa < 0) { elSisa.innerText = `Kembalian: ${formatRp(Math.abs(sisa))}`; elSisa.className = "text-sm mt-1 text-blue-600"; }
+            else { elSisa.innerText = "Lunas / Pas"; elSisa.className = "text-sm mt-1 text-green-600 font-semibold"; }
+        }
+
+        function simpanTransaksi() {
+            const nama = document.getElementById('t-nama').value.trim();
+            const telp = document.getElementById('t-telp').value.trim();
+            const total = parseFloat(document.getElementById('t-total-harga').dataset.val) || 0;
+            const bayar = parseFloat(document.getElementById('t-bayar').value) || 0;
+            
+            if(!nama) return showAlert("Nama konsumen wajib diisi!");
+            if(state.keranjang.length === 0) return showAlert("Pilih minimal 1 hewan untuk dijual!");
+            
+            let valid = true;
+            state.keranjang.forEach(k => { if(!k.bobotKeluar || !k.hargaJual) valid = false; });
+            if(!valid) return showAlert("Mohon lengkapi Bobot Keluar dan Harga Jual pada semua hewan di keranjang!");
+
+            const sisa = Math.max(0, total - bayar);
+            const statusBayar = sisa > 0 ? 'Di-DP' : 'Lunas';
+            const idTransaksi = 'TRX-' + Date.now();
+
+            state.transaksi.push({
+                id: idTransaksi, tanggal: new Date().toISOString(),
+                konsumen: { nama, telp }, items: [...state.keranjang], total: total,
+                terbayar: Math.min(bayar, total), sisa: sisa, statusBayar: statusBayar,
+                statusKirim: 'Belum Dikirim', pengiriman: null
+            });
+
+            state.keranjang.forEach(item => {
+                const hIndex = state.hewan.findIndex(h => h.id === item.id);
+                if(hIndex > -1) {
+                    state.hewan[hIndex].status = statusBayar; 
+                    state.hewan[hIndex].bobotKeluar = item.bobotKeluar; 
+                }
+            });
+
+            if(bayar > 0) {
+                state.kas.push({
+                    id: 'KAS-' + Date.now(), tanggal: new Date().toISOString(), tipe: 'Masuk',
+                    kategori: statusBayar === 'Di-DP' ? 'Pemasukan DP' : 'Pemasukan Penjualan',
+                    nominal: Math.min(bayar, total), keterangan: `Penjualan ${state.keranjang.length} ekor ke ${nama} (${idTransaksi})`
+                });
+            }
+
+            state.keranjang = [];
+            document.getElementById('t-nama').value = ''; document.getElementById('t-telp').value = ''; document.getElementById('t-bayar').value = '';
+            saveState(); showAlert("Transaksi berhasil disimpan! Silakan cek menu Logistik untuk pengiriman.");
+        }
+
+        function renderTransaksi() {
+            const tbody = document.getElementById('table-transaksi');
+            tbody.innerHTML = '';
+            const trx = [...state.transaksi].reverse();
+
+            if(trx.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada riwayat transaksi.</td></tr>`;
+                return;
+            }
+
+            trx.forEach(t => {
+                let badgeBayar = t.statusBayar === 'Lunas' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                let badgeKirim = t.statusKirim === 'Terkirim' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                let itemList = t.items.map(i => `${i.id} (${i.bobotKeluar}Kg)`).join('<br>');
+
+                let btnLunas = t.statusBayar === 'Di-DP' 
+                    ? `<button onclick="bukaModalPelunasan('${t.id}')" class="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-1 mb-1 w-full">Pelunasan</button>` 
+                    : '<span class="text-xs text-green-600 font-bold block mb-1"><i class="fa-solid fa-check"></i> Lunas</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">${t.konsumen.nama}</div>
+                            <div class="text-xs text-gray-500">${t.konsumen.telp}</div>
+                            <div class="text-xs text-gray-400 mt-1">${formatDate(t.tanggal)}</div>
+                        </td>
+                        <td class="px-6 py-4 text-xs">${itemList}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-xs text-gray-500">Total: ${formatRp(t.total)}</div>
+                            <div class="text-xs text-green-600">Terbayar: ${formatRp(t.terbayar)}</div>
+                            <div class="text-xs text-red-500">Sisa: ${formatRp(t.sisa)}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeBayar} mb-1">${t.statusBayar}</span><br>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeKirim}">${t.statusKirim}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            ${btnLunas}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- Pelunasan ---
+        function bukaModalPelunasan(idTrx) {
+            const t = state.transaksi.find(x => x.id === idTrx);
+            if(!t) return;
+            document.getElementById('m-id-trans').innerText = t.id;
+            document.getElementById('m-id-hidden').value = t.id;
+            document.getElementById('m-sisa').innerText = formatRp(t.sisa);
+            document.getElementById('m-nominal').value = t.sisa; 
+            document.getElementById('modal-pelunasan').classList.remove('hidden');
+            document.getElementById('modal-pelunasan').classList.add('flex');
+        }
+
+        function tutupModal() {
+            document.getElementById('modal-pelunasan').classList.add('hidden');
+            document.getElementById('modal-pelunasan').classList.remove('flex');
+        }
+
+        function prosesPelunasan() {
+            const id = document.getElementById('m-id-hidden').value;
+            const nominal = parseFloat(document.getElementById('m-nominal').value) || 0;
+            const tIndex = state.transaksi.findIndex(x => x.id === id);
+            if(tIndex === -1) return;
+            
+            let t = state.transaksi[tIndex];
+            if(nominal <= 0) return showAlert("Nominal tidak valid!");
+            if(nominal > t.sisa) return showAlert("Nominal melebihi sisa piutang!");
+
+            t.terbayar += nominal;
+            t.sisa -= nominal;
+            if(t.sisa === 0) {
+                t.statusBayar = 'Lunas';
+                t.items.forEach(item => {
+                    let hIdx = state.hewan.findIndex(h => h.id === item.id);
+                    if(hIdx > -1 && state.hewan[hIdx].status !== 'Terkirim') state.hewan[hIdx].status = 'Lunas';
+                });
+            }
+
+            state.kas.push({
+                id: 'KAS-' + Date.now(), tanggal: new Date().toISOString(), tipe: 'Masuk',
+                kategori: 'Pelunasan', nominal: nominal, keterangan: `Pelunasan TRX ${t.id} oleh ${t.konsumen.nama}`
+            });
+
+            saveState(); tutupModal(); showAlert("Pelunasan berhasil dicatat!");
+        }
+
+        // ================= LOGISTIK & PENGIRIMAN =================
+        function renderLogistik() {
+            const tbPending = document.getElementById('table-logistik-pending');
+            const tbRiwayat = document.getElementById('table-logistik-riwayat');
+            tbPending.innerHTML = ''; tbRiwayat.innerHTML = '';
+
+            const pending = state.transaksi.filter(t => t.statusKirim === 'Belum Dikirim');
+            const riwayat = state.transaksi.filter(t => t.statusKirim === 'Terkirim').reverse();
+
+            // Render Pending
+            if(pending.length === 0) {
+                tbPending.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada pengiriman yang tertunda.</td></tr>`;
+            } else {
+                pending.forEach(t => {
+                    let itemList = t.items.map(i => `${i.id}`).join(', ');
+                    tbPending.innerHTML += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs">
+                                <span class="font-bold text-gray-900">${t.id}</span><br>
+                                <span class="text-gray-500">${formatDate(t.tanggal)}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="font-medium">${t.konsumen.nama}</span><br>
+                                <span class="text-xs text-gray-500">${t.konsumen.telp}</span>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-gray-700">
+                                ${t.items.length} Ekor (${itemList})
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <button onclick="bukaModalPengiriman('${t.id}')" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded shadow hover:bg-blue-700">
+                                    Proses Kirim
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Riwayat
+            if(riwayat.length === 0) {
+                tbRiwayat.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada riwayat pengiriman.</td></tr>`;
+            } else {
+                riwayat.forEach(t => {
+                    let p = t.pengiriman || {};
+                    let driverInfo = p.driver ? `${p.driver} (${p.hpDriver})` : '-';
+                    let platInfo = p.plat || '-';
+                    let sjInfo = p.suratJalan || '-';
+                    
+                    tbRiwayat.innerHTML += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                                ${p.tglKirim ? formatDate(p.tglKirim) : formatDate(t.tanggal)}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="font-medium text-gray-900">${t.konsumen.nama}</span><br>
+                                <span class="text-xs text-gray-500">TRX: ${t.id}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs">
+                                <p><strong>SJ:</strong> ${sjInfo}</p>
+                                <p><strong>Driver:</strong> ${driverInfo}</p>
+                                <p><strong>Plat:</strong> <span class="px-1 bg-gray-200 rounded border border-gray-400 font-mono">${platInfo}</span></p>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-gray-700">
+                                ${t.items.length} Ekor Terkirim
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function bukaModalPengiriman(idTrx) {
+            document.getElementById('l-id-trans').innerText = idTrx;
+            document.getElementById('l-id-hidden').value = idTrx;
+            
+            // Bersihkan form
+            document.getElementById('l-surat-jalan').value = '';
+            document.getElementById('l-driver').value = '';
+            document.getElementById('l-hp').value = '';
+            document.getElementById('l-plat').value = '';
+            
+            document.getElementById('modal-pengiriman').classList.remove('hidden');
+            document.getElementById('modal-pengiriman').classList.add('flex');
+        }
+
+        function tutupModalPengiriman() {
+            document.getElementById('modal-pengiriman').classList.add('hidden');
+            document.getElementById('modal-pengiriman').classList.remove('flex');
+        }
+
+        function prosesPengiriman() {
+            const idTrx = document.getElementById('l-id-hidden').value;
+            const sj = document.getElementById('l-surat-jalan').value.trim();
+            const driver = document.getElementById('l-driver').value.trim();
+            const hp = document.getElementById('l-hp').value.trim();
+            const plat = document.getElementById('l-plat').value.trim();
+
+            if(!driver || !plat) {
+                showAlert("Nama Driver dan No. Plat Kendaraan wajib diisi!");
+                return;
+            }
+
+            const tIndex = state.transaksi.findIndex(x => x.id === idTrx);
+            if(tIndex === -1) return;
+            
+            let t = state.transaksi[tIndex];
+            t.statusKirim = 'Terkirim';
+            t.pengiriman = { suratJalan: sj, driver: driver, hpDriver: hp, plat: plat, tglKirim: new Date().toISOString() };
+
+            t.items.forEach(item => {
+                let hIdx = state.hewan.findIndex(h => h.id === item.id);
+                if(hIdx > -1) state.hewan[hIdx].status = 'Terkirim';
+            });
+
+            saveState(); tutupModalPengiriman();
+            showAlert("Validasi berhasil! Hewan resmi dikeluarkan dari stok kandang dan tercatat telah terkirim.");
+        }
+
+        // ================= KEUANGAN (KAS MANUAL) =================
+        function catatKas(e) {
+            e.preventDefault();
+            const tipe = document.getElementById('k-tipe').value;
+            const kategori = document.getElementById('k-kategori').value;
+            const nominal = parseFloat(document.getElementById('k-nominal').value);
+            const ket = document.getElementById('k-ket').value;
+
+            state.kas.push({
+                id: 'KAS-' + Date.now(), tanggal: new Date().toISOString(), tipe: tipe,
+                kategori: kategori, nominal: nominal, keterangan: ket
+            });
+
+            saveState(); e.target.reset(); showAlert("Kas berhasil dicatat!");
+        }
+
+        function renderKas() {
+            const tbody = document.getElementById('table-kas');
+            tbody.innerHTML = '';
+            const dataKas = [...state.kas].reverse();
+
+            // Hitung Laba Rugi untuk Menu Keuangan
+            let totalKas = 0; 
+            let totalPendapatan = 0;
+            let totalPengeluaran = 0;
+            
+            state.kas.forEach(k => { 
+                if (k.tipe === 'Masuk') {
+                    totalKas += k.nominal;
+                    if (k.kategori !== 'Modal / Dana Investor') totalPendapatan += k.nominal;
+                } else if (k.tipe === 'Keluar') {
+                    totalKas -= k.nominal;
+                    totalPengeluaran += k.nominal;
+                }
+            });
+
+            let labaRugiBersih = totalPendapatan - totalPengeluaran;
+
+            // Update UI Ringkasan Keuangan
+            document.getElementById('k-pendapatan').innerText = formatRp(totalPendapatan);
+            document.getElementById('k-pengeluaran').innerText = formatRp(totalPengeluaran);
+            
+            const elLabaRugiKas = document.getElementById('k-labarugi');
+            elLabaRugiKas.innerText = formatRp(labaRugiBersih);
+            if(labaRugiBersih >= 0) {
+                elLabaRugiKas.classList.remove('text-red-800'); elLabaRugiKas.classList.add('text-purple-800');
+            } else {
+                elLabaRugiKas.classList.remove('text-purple-800'); elLabaRugiKas.classList.add('text-red-800');
+            }
+            
+            document.getElementById('k-saldo-akhir').innerText = formatRp(totalKas);
+
+            // Render Tabel
+            if(dataKas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada catatan keuangan.</td></tr>`;
+                return;
+            }
+
+            dataKas.forEach(k => {
+                let isMasuk = k.tipe === 'Masuk';
+                let nominalClass = isMasuk ? 'text-green-600' : 'text-red-600';
+                let tipeTanda = isMasuk ? '+' : '-';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${formatDate(k.tanggal)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isMasuk ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${k.tipe}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${k.kategori}</td>
+                        <td class="px-6 py-4 text-gray-500">${k.keterangan || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right font-bold ${nominalClass}">
+                            ${tipeTanda} ${formatRp(k.nominal)}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================= INITIALIZATION =================
+        window.onload = () => { renderAll(); };
+
+    </script>
+</body>
+</html>
