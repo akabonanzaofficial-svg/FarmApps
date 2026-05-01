@@ -488,6 +488,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="table-kas" class="bg-white divide-y divide-gray-200 text-sm">
@@ -499,6 +500,103 @@
         </div>
 
     </main>
+
+    <!-- Modal Admin Password -->
+    <div id="modal-password" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[70]">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2"><i class="fa-solid fa-lock text-red-500"></i> Otorisasi Admin</h3>
+            <p class="mb-4 text-sm text-gray-600">Masukkan password admin untuk mengubah atau menghapus data.</p>
+            <div class="mb-4">
+                <input type="password" id="admin-pass-input" class="w-full border rounded p-2" placeholder="Password Admin...">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeAdminPassword()" class="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300">Batal</button>
+                <button onclick="submitAdminPassword()" class="px-4 py-2 bg-red-600 rounded text-white hover:bg-red-700">Otorisasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Stok -->
+    <div id="modal-edit-stok" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2">Edit Data Hewan</h3>
+            <input type="hidden" id="e-stok-id-lama">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ID / Tag Telinga</label>
+                    <input type="text" id="e-stok-id" class="mt-1 block w-full rounded border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Harga Modal (Rp)</label>
+                    <input type="number" id="e-stok-modal" class="mt-1 block w-full rounded border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Jenis</label>
+                    <select id="e-stok-jenis" class="mt-1 block w-full rounded border p-2">
+                        <option value="Sapi">Sapi</option>
+                        <option value="Domba">Domba</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Kelamin</label>
+                    <select id="e-stok-kelamin" class="mt-1 block w-full rounded border p-2">
+                        <option value="Jantan">Jantan</option>
+                        <option value="Betina">Betina</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Bobot Masuk (Kg)</label>
+                    <input type="number" id="e-stok-bobot" step="0.1" class="mt-1 block w-full rounded border p-2">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeEditStok()" class="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300">Batal</button>
+                <button onclick="simpanDataStok()" class="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-700">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Kas -->
+    <div id="modal-edit-kas" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2">Edit Data Kas</h3>
+            <input type="hidden" id="e-kas-id">
+            <div class="space-y-4 mb-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tipe</label>
+                        <select id="e-kas-tipe" class="mt-1 block w-full rounded border p-2">
+                            <option value="Masuk">Pemasukan (Masuk)</option>
+                            <option value="Keluar">Pengeluaran (Keluar)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nominal (Rp)</label>
+                        <input type="number" id="e-kas-nominal" class="mt-1 block w-full rounded border p-2">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                    <select id="e-kas-kategori" class="mt-1 block w-full rounded border p-2">
+                        <option value="Modal / Dana Investor">Modal / Dana Investor</option>
+                        <option value="Pakan / Rumput">Pakan / Rumput</option>
+                        <option value="Gaji Pegawai">Gaji Pegawai</option>
+                        <option value="Obat / Vitamin">Obat / Vitamin</option>
+                        <option value="Operasional Lainnya">Operasional Lainnya</option>
+                        <option value="Lain-lain">Lain-lain</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Keterangan</label>
+                    <input type="text" id="e-kas-ket" class="mt-1 block w-full rounded border p-2">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeEditKas()" class="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300">Batal</button>
+                <button onclick="simpanDataKas()" class="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-700">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Update Status Hewan -->
     <div id="modal-status-hewan" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
@@ -574,7 +672,7 @@
     </div>
 
     <!-- Custom Alert Modal -->
-    <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+    <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[80]">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center mx-4">
             <div class="mb-6 text-gray-800" id="alert-message"></div>
             <button onclick="closeAlert()" class="px-6 py-2 bg-green-600 rounded text-white font-bold hover:bg-green-700 w-full">OK</button>
@@ -582,7 +680,7 @@
     </div>
 
     <!-- Custom Confirm Modal -->
-    <div id="custom-confirm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+    <div id="custom-confirm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[80]">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center mx-4">
             <div class="mb-6 text-gray-800" id="confirm-message"></div>
             <div class="flex justify-center gap-4">
@@ -599,6 +697,9 @@
         // ==============================================================================
         const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzUYPb7Ue_JtD1YrEdnhZzJGFysIawD7bsczhX-OsQmCSNeWwo28QtWYZ6rH2gfbAzdRA/exec"; 
         // ==============================================================================
+        
+        // PASSWORD ADMIN DEFAULT (Ubah sesuai keinginan Anda)
+        const ADMIN_PASSWORD = "admin123";
 
         // ================= STATE MANAGEMENT =================
         let state = {
@@ -610,8 +711,9 @@
 
         let salesChartInstance = null;
 
-        // ================= CUSTOM MODALS =================
+        // ================= CUSTOM MODALS & ADMIN AUTH =================
         let confirmCallback = null;
+        let pendingAdminAction = null; // Menyimpan aksi yang tertunda hingga password benar
 
         function showAlert(msg) {
             document.getElementById('alert-message').innerText = msg;
@@ -638,14 +740,37 @@
             confirmCallback = null;
         }
 
+        // --- Fungsi Otorisasi Admin ---
+        function verifyAdmin(actionCallback) {
+            pendingAdminAction = actionCallback;
+            document.getElementById('admin-pass-input').value = ''; // Reset input
+            document.getElementById('modal-password').classList.remove('hidden');
+            document.getElementById('modal-password').classList.add('flex');
+        }
+
+        function closeAdminPassword() {
+            document.getElementById('modal-password').classList.add('hidden');
+            document.getElementById('modal-password').classList.remove('flex');
+            pendingAdminAction = null;
+        }
+
+        function submitAdminPassword() {
+            const input = document.getElementById('admin-pass-input').value;
+            if(input === ADMIN_PASSWORD) {
+                closeAdminPassword();
+                if(pendingAdminAction) pendingAdminAction(); // Jalankan aksi
+            } else {
+                showAlert("Password Admin Salah!");
+            }
+        }
+
+        // --- Penyimpanan ---
         function saveState() {
-            // 1. Simpan secara instan ke Local Storage (Agar cepat dan offline-ready)
             localStorage.setItem('db_hewan', JSON.stringify(state.hewan));
             localStorage.setItem('db_transaksi', JSON.stringify(state.transaksi));
             localStorage.setItem('db_kas', JSON.stringify(state.kas));
             renderAll();
 
-            // 2. Backup secara otomatis ke Google Sheets di latar belakang
             if(GOOGLE_SHEETS_URL !== "https://script.google.com/macros/s/AKfycbzUYPb7Ue_JtD1YrEdnhZzJGFysIawD7bsczhX-OsQmCSNeWwo28QtWYZ6rH2gfbAzdRA/exec") {
                 fetch(GOOGLE_SHEETS_URL, {
                     method: 'POST',
@@ -698,19 +823,16 @@
         }
 
         function renderDashboard() {
-            // Filter Sapi
             const sapiKandang = state.hewan.filter(h => h.jenis === 'Sapi' && h.status !== 'Terkirim' && h.status !== 'Mati');
             const sapiTersedia = sapiKandang.filter(h => h.status === 'Tersedia').length;
             const sapiSakit = sapiKandang.filter(h => h.status === 'Sakit').length;
             const sapiTerjual = sapiKandang.filter(h => h.status === 'Di-DP' || h.status === 'Lunas').length; 
 
-            // Filter Domba
             const dombaKandang = state.hewan.filter(h => h.jenis === 'Domba' && h.status !== 'Terkirim' && h.status !== 'Mati');
             const dombaTersedia = dombaKandang.filter(h => h.status === 'Tersedia').length;
             const dombaSakit = dombaKandang.filter(h => h.status === 'Sakit').length;
             const dombaTerjual = dombaKandang.filter(h => h.status === 'Di-DP' || h.status === 'Lunas').length;
             
-            // Hitung Kas, Pendapatan, Pengeluaran & Piutang
             let totalKas = 0; 
             let totalPendapatan = 0;
             let totalPengeluaran = 0;
@@ -718,46 +840,37 @@
             state.kas.forEach(k => { 
                 if (k.tipe === 'Masuk') {
                     totalKas += k.nominal;
-                    if (k.kategori !== 'Modal / Dana Investor') {
-                        totalPendapatan += k.nominal; // Hanya uang hasil bisnis
-                    }
+                    if (k.kategori !== 'Modal / Dana Investor') totalPendapatan += k.nominal; 
                 } else if (k.tipe === 'Keluar') {
                     totalKas -= k.nominal;
-                    totalPengeluaran += k.nominal; // Seluruh pengeluaran beban & modal hewan
+                    totalPengeluaran += k.nominal; 
                 }
             });
             
             let labaRugiBersih = totalPendapatan - totalPengeluaran;
             let piutang = 0; state.transaksi.forEach(t => { piutang += t.sisa; });
 
-            // Tampilkan ke Dashboard (Sapi)
             document.getElementById('dash-sapi-total').innerText = `${sapiKandang.length} Ekor`;
             document.getElementById('dash-sapi-tersedia').innerText = `${sapiTersedia}`;
             document.getElementById('dash-sapi-terjual').innerText = `${sapiTerjual}`;
             document.getElementById('dash-sapi-sakit').innerText = `${sapiSakit}`;
 
-            // Tampilkan ke Dashboard (Domba)
             document.getElementById('dash-domba-total').innerText = `${dombaKandang.length} Ekor`;
             document.getElementById('dash-domba-tersedia').innerText = `${dombaTersedia}`;
             document.getElementById('dash-domba-terjual').innerText = `${dombaTerjual}`;
             document.getElementById('dash-domba-sakit').innerText = `${dombaSakit}`;
 
-            // Tampilkan Keuangan
             document.getElementById('dash-kas').innerText = formatRp(totalKas);
             document.getElementById('dash-piutang').innerText = formatRp(piutang);
             
-            // Tampilkan Laba Rugi di Dashboard dengan logika warna
             const elLabaRugi = document.getElementById('dash-laba-rugi');
             elLabaRugi.innerText = formatRp(labaRugiBersih);
             if(labaRugiBersih >= 0) {
-                elLabaRugi.classList.remove('text-red-600', 'text-gray-900');
-                elLabaRugi.classList.add('text-green-600');
+                elLabaRugi.classList.remove('text-red-600', 'text-gray-900'); elLabaRugi.classList.add('text-green-600');
             } else {
-                elLabaRugi.classList.remove('text-green-600', 'text-gray-900');
-                elLabaRugi.classList.add('text-red-600');
+                elLabaRugi.classList.remove('text-green-600', 'text-gray-900'); elLabaRugi.classList.add('text-red-600');
             }
 
-            // Render Chart & Top Pelanggan
             renderDashboardExtras();
         }
 
@@ -834,10 +947,10 @@
             });
         }
 
+        // ================= FUNGSI STOK HEWAN & EDIT/HAPUS =================
         function renderStok() {
             const tbody = document.getElementById('table-stok');
             tbody.innerHTML = '';
-            // Tampilkan yang belum dikirim & tidak mati
             const stokAktif = state.hewan.filter(h => h.status !== 'Terkirim' && h.status !== 'Mati');
             
             if(stokAktif.length === 0) {
@@ -850,9 +963,16 @@
                                  h.status === 'Sakit' ? 'bg-red-100 text-red-800' :
                                  h.status === 'Di-DP' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800';
                 
-                // Disable ubah status jika sudah terjual (Di-DP/Lunas)
-                let btnDisable = (h.status === 'Di-DP' || h.status === 'Lunas') ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 text-gray-600';
-                let btnClick = (h.status === 'Di-DP' || h.status === 'Lunas') ? `onclick="showAlert('Hewan ini sudah masuk transaksi pembeli, status tidak dapat diubah.')"` : `onclick="bukaModalStatusHewan('${h.id}')"`;
+                let isTerjual = (h.status === 'Di-DP' || h.status === 'Lunas');
+                
+                // Button Actions
+                let btnUbahStatus = `<button onclick="bukaModalStatusHewan('${h.id}')" class="p-1.5 text-green-600 hover:bg-green-100 rounded" title="Ubah Status (Sakit/Mati)"><i class="fa-solid fa-notes-medical"></i></button>`;
+                let btnEdit = `<button onclick="prosesEditStok('${h.id}')" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded" title="Edit Data (Admin)"><i class="fa-solid fa-pen"></i></button>`;
+                let btnDelete = `<button onclick="prosesHapusStok('${h.id}')" class="p-1.5 text-red-600 hover:bg-red-100 rounded" title="Hapus Permanen (Admin)"><i class="fa-solid fa-trash"></i></button>`;
+
+                if(isTerjual) {
+                    btnUbahStatus = `<button onclick="showAlert('Hewan ini sedang dalam transaksi, status tidak dapat diubah.')" class="p-1.5 text-gray-400 cursor-not-allowed"><i class="fa-solid fa-notes-medical"></i></button>`;
+                }
 
                 tbody.innerHTML += `
                     <tr>
@@ -861,27 +981,90 @@
                         <td class="px-6 py-4 whitespace-nowrap">${h.bobotMasuk} Kg</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatRp(h.hargaModal)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeColor}">
-                                ${h.status}
-                            </span>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeColor}">${h.status}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <button ${btnClick} class="p-2 rounded transition ${btnDisable}" title="Ubah Status">
-                                <i class="fa-solid fa-notes-medical"></i> Ubah
-                            </button>
+                            <div class="flex justify-center gap-1">
+                                ${btnUbahStatus}
+                                ${btnEdit}
+                                ${btnDelete}
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        // ================= FUNGSI UPDATE STATUS HEWAN =================
+        // --- Edit Stok Admin ---
+        function prosesEditStok(id) {
+            verifyAdmin(() => {
+                const h = state.hewan.find(x => x.id === id);
+                if(!h) return;
+                document.getElementById('e-stok-id-lama').value = h.id;
+                document.getElementById('e-stok-id').value = h.id;
+                document.getElementById('e-stok-modal').value = h.hargaModal;
+                document.getElementById('e-stok-jenis').value = h.jenis;
+                document.getElementById('e-stok-kelamin').value = h.kelamin;
+                document.getElementById('e-stok-bobot').value = h.bobotMasuk;
+                
+                document.getElementById('modal-edit-stok').classList.remove('hidden');
+                document.getElementById('modal-edit-stok').classList.add('flex');
+            });
+        }
+
+        function closeEditStok() {
+            document.getElementById('modal-edit-stok').classList.add('hidden');
+            document.getElementById('modal-edit-stok').classList.remove('flex');
+        }
+
+        function simpanDataStok() {
+            const idLama = document.getElementById('e-stok-id-lama').value;
+            const idBaru = document.getElementById('e-stok-id').value.trim();
+            const hIndex = state.hewan.findIndex(x => x.id === idLama);
+            
+            if(hIndex === -1) return;
+            if(!idBaru) return showAlert("ID Hewan tidak boleh kosong!");
+
+            // Cek jika ID diganti tapi bentrok dengan ID lain
+            if(idLama !== idBaru && state.hewan.find(h => h.id === idBaru)) {
+                return showAlert("ID / Tag Telinga baru sudah digunakan!");
+            }
+
+            state.hewan[hIndex].id = idBaru;
+            state.hewan[hIndex].hargaModal = parseFloat(document.getElementById('e-stok-modal').value) || 0;
+            state.hewan[hIndex].jenis = document.getElementById('e-stok-jenis').value;
+            state.hewan[hIndex].kelamin = document.getElementById('e-stok-kelamin').value;
+            state.hewan[hIndex].bobotMasuk = parseFloat(document.getElementById('e-stok-bobot').value) || 0;
+
+            saveState(); closeEditStok(); showAlert("Perubahan data hewan berhasil disimpan!");
+        }
+
+        // --- Hapus Stok Admin ---
+        function prosesHapusStok(id) {
+            verifyAdmin(() => {
+                const h = state.hewan.find(x => x.id === id);
+                if(!h) return;
+                if(h.status === 'Di-DP' || h.status === 'Lunas') {
+                    return showAlert("Hewan ini sudah masuk dalam transaksi pelanggan. Anda harus membatalkan transaksi penjualannya terlebih dahulu!");
+                }
+
+                showConfirm(`Yakin ingin MENGHAPUS PERMANEN hewan dengan ID ${id} dari database?`, (yes) => {
+                    if(yes) {
+                        state.hewan = state.hewan.filter(x => x.id !== id);
+                        saveState();
+                        showAlert("Data hewan berhasil dihapus.");
+                    }
+                });
+            });
+        }
+
+        // --- Status Hewan Standard (Sakit/Mati) ---
         function bukaModalStatusHewan(id) {
             const h = state.hewan.find(x => x.id === id);
             if(!h) return;
             document.getElementById('m-sh-id').innerText = h.id;
             document.getElementById('m-sh-hidden').value = h.id;
-            document.getElementById('m-sh-status').value = h.status === 'Sakit' ? 'Sakit' : 'Tersedia'; // Defaultkan
+            document.getElementById('m-sh-status').value = h.status === 'Sakit' ? 'Sakit' : 'Tersedia';
             document.getElementById('modal-status-hewan').classList.remove('hidden');
             document.getElementById('modal-status-hewan').classList.add('flex');
         }
@@ -894,28 +1077,22 @@
         function simpanStatusHewan() {
             const id = document.getElementById('m-sh-hidden').value;
             const newStatus = document.getElementById('m-sh-status').value;
-            
             const hIndex = state.hewan.findIndex(x => x.id === id);
             if(hIndex === -1) return;
 
             if (newStatus === 'Mati') {
-                showConfirm("Yakin hewan ini mati? Data hewan akan dihapus dari ketersediaan stok.", function(yes) {
+                showConfirm("Yakin hewan ini mati? Data hewan akan dihapus dari ketersediaan stok aktif.", function(yes) {
                     if(yes) {
                         state.hewan[hIndex].status = 'Mati';
-                        saveState();
-                        tutupModalStatusHewan();
-                        showAlert("Status hewan telah diperbarui menjadi Mati.");
+                        saveState(); tutupModalStatusHewan(); showAlert("Status hewan telah diperbarui menjadi Mati.");
                     }
                 });
             } else {
                 state.hewan[hIndex].status = newStatus;
-                saveState();
-                tutupModalStatusHewan();
-                showAlert("Status hewan berhasil diperbarui.");
+                saveState(); tutupModalStatusHewan(); showAlert("Status hewan berhasil diperbarui.");
             }
         }
 
-        // ================= FUNGSI STOK HEWAN =================
         function tambahHewan(e) {
             e.preventDefault();
             const id = document.getElementById('h-id').value.trim();
@@ -1069,8 +1246,11 @@
                 let itemList = t.items.map(i => `${i.id} (${i.bobotKeluar}Kg)`).join('<br>');
 
                 let btnLunas = t.statusBayar === 'Di-DP' 
-                    ? `<button onclick="bukaModalPelunasan('${t.id}')" class="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-1 mb-1 w-full">Pelunasan</button>` 
+                    ? `<button onclick="bukaModalPelunasan('${t.id}')" class="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mb-1 w-full"><i class="fa-solid fa-money-bill-wave"></i> Lunas</button>` 
                     : '<span class="text-xs text-green-600 font-bold block mb-1"><i class="fa-solid fa-check"></i> Lunas</span>';
+                
+                // Tambah tombol Batalkan (Admin)
+                let btnBatalkan = `<button onclick="prosesHapusTransaksi('${t.id}')" class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 w-full mt-1"><i class="fa-solid fa-xmark"></i> Batal (Admin)</button>`;
 
                 tbody.innerHTML += `
                     <tr>
@@ -1091,9 +1271,38 @@
                         </td>
                         <td class="px-6 py-4 text-center">
                             ${btnLunas}
+                            ${btnBatalkan}
                         </td>
                     </tr>
                 `;
+            });
+        }
+
+        // --- Hapus/Batal Transaksi Admin ---
+        function prosesHapusTransaksi(idTrx) {
+            verifyAdmin(() => {
+                showConfirm("Yakin ingin MEMBATALKAN & MENGHAPUS transaksi ini? Data hewan akan dikembalikan ke status 'Tersedia'. (Catatan Kas yang berhubungan dengan transaksi ini harus Anda hapus secara manual di Menu Keuangan).", (yes) => {
+                    if(yes) {
+                        const tIndex = state.transaksi.findIndex(x => x.id === idTrx);
+                        if(tIndex === -1) return;
+                        
+                        let t = state.transaksi[tIndex];
+
+                        // Kembalikan status hewan
+                        t.items.forEach(item => {
+                            let hIdx = state.hewan.findIndex(h => h.id === item.id);
+                            if(hIdx > -1) {
+                                state.hewan[hIdx].status = 'Tersedia';
+                                state.hewan[hIdx].bobotKeluar = ''; // Reset history
+                            }
+                        });
+
+                        // Hapus dari state
+                        state.transaksi.splice(tIndex, 1);
+                        saveState();
+                        showAlert("Transaksi berhasil dibatalkan dan status hewan dikembalikan.");
+                    }
+                });
             });
         }
 
@@ -1151,7 +1360,6 @@
             const pending = state.transaksi.filter(t => t.statusKirim === 'Belum Dikirim');
             const riwayat = state.transaksi.filter(t => t.statusKirim === 'Terkirim').reverse();
 
-            // Render Pending
             if(pending.length === 0) {
                 tbPending.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada pengiriman yang tertunda.</td></tr>`;
             } else {
@@ -1180,7 +1388,6 @@
                 });
             }
 
-            // Render Riwayat
             if(riwayat.length === 0) {
                 tbRiwayat.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada riwayat pengiriman.</td></tr>`;
             } else {
@@ -1216,8 +1423,6 @@
         function bukaModalPengiriman(idTrx) {
             document.getElementById('l-id-trans').innerText = idTrx;
             document.getElementById('l-id-hidden').value = idTrx;
-            
-            // Bersihkan form
             document.getElementById('l-surat-jalan').value = '';
             document.getElementById('l-driver').value = '';
             document.getElementById('l-hp').value = '';
@@ -1260,7 +1465,7 @@
             showAlert("Validasi berhasil! Hewan resmi dikeluarkan dari stok kandang dan tercatat telah terkirim.");
         }
 
-        // ================= KEUANGAN (KAS MANUAL) =================
+        // ================= KEUANGAN (KAS MANUAL) & EDIT/HAPUS =================
         function catatKas(e) {
             e.preventDefault();
             const tipe = document.getElementById('k-tipe').value;
@@ -1314,7 +1519,7 @@
 
             // Render Tabel
             if(dataKas.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada catatan keuangan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada catatan keuangan.</td></tr>`;
                 return;
             }
 
@@ -1322,6 +1527,10 @@
                 let isMasuk = k.tipe === 'Masuk';
                 let nominalClass = isMasuk ? 'text-green-600' : 'text-red-600';
                 let tipeTanda = isMasuk ? '+' : '-';
+
+                // Admin Action Buttons
+                let btnEdit = `<button onclick="prosesEditKas('${k.id}')" class="p-1 text-blue-600 hover:bg-blue-100 rounded" title="Edit Admin"><i class="fa-solid fa-pen"></i></button>`;
+                let btnDelete = `<button onclick="prosesHapusKas('${k.id}')" class="p-1 text-red-600 hover:bg-red-100 rounded" title="Hapus Admin"><i class="fa-solid fa-trash"></i></button>`;
 
                 tbody.innerHTML += `
                     <tr>
@@ -1336,8 +1545,58 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right font-bold ${nominalClass}">
                             ${tipeTanda} ${formatRp(k.nominal)}
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            ${btnEdit}
+                            ${btnDelete}
+                        </td>
                     </tr>
                 `;
+            });
+        }
+
+        // --- Edit & Hapus Kas Admin ---
+        function prosesEditKas(idKas) {
+            verifyAdmin(() => {
+                const k = state.kas.find(x => x.id === idKas);
+                if(!k) return;
+                document.getElementById('e-kas-id').value = k.id;
+                document.getElementById('e-kas-tipe').value = k.tipe;
+                document.getElementById('e-kas-kategori').value = k.kategori;
+                document.getElementById('e-kas-nominal').value = k.nominal;
+                document.getElementById('e-kas-ket').value = k.keterangan || "";
+                
+                document.getElementById('modal-edit-kas').classList.remove('hidden');
+                document.getElementById('modal-edit-kas').classList.add('flex');
+            });
+        }
+
+        function closeEditKas() {
+            document.getElementById('modal-edit-kas').classList.add('hidden');
+            document.getElementById('modal-edit-kas').classList.remove('flex');
+        }
+
+        function simpanDataKas() {
+            const idKas = document.getElementById('e-kas-id').value;
+            const kIndex = state.kas.findIndex(x => x.id === idKas);
+            if(kIndex === -1) return;
+
+            state.kas[kIndex].tipe = document.getElementById('e-kas-tipe').value;
+            state.kas[kIndex].kategori = document.getElementById('e-kas-kategori').value;
+            state.kas[kIndex].nominal = parseFloat(document.getElementById('e-kas-nominal').value) || 0;
+            state.kas[kIndex].keterangan = document.getElementById('e-kas-ket').value;
+
+            saveState(); closeEditKas(); showAlert("Perubahan catatan kas berhasil disimpan!");
+        }
+
+        function prosesHapusKas(idKas) {
+            verifyAdmin(() => {
+                showConfirm("Yakin ingin menghapus catatan kas ini secara permanen?", (yes) => {
+                    if(yes) {
+                        state.kas = state.kas.filter(k => k.id !== idKas);
+                        saveState();
+                        showAlert("Catatan kas berhasil dihapus.");
+                    }
+                });
             });
         }
 
