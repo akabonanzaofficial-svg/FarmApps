@@ -594,6 +594,12 @@
 
     <!-- Application Logic (JavaScript) -->
     <script>
+        // ==============================================================================
+        // ⬇️⬇️⬇️ PASTE URL GOOGLE APPS SCRIPT ANDA DI BAWAH INI ⬇️⬇️⬇️
+        // ==============================================================================
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzUYPb7Ue_JtD1YrEdnhZzJGFysIawD7bsczhX-OsQmCSNeWwo28QtWYZ6rH2gfbAzdRA/exec"; 
+        // ==============================================================================
+
         // ================= STATE MANAGEMENT =================
         let state = {
             hewan: JSON.parse(localStorage.getItem('db_hewan')) || [],
@@ -633,10 +639,23 @@
         }
 
         function saveState() {
+            // 1. Simpan secara instan ke Local Storage (Agar cepat dan offline-ready)
             localStorage.setItem('db_hewan', JSON.stringify(state.hewan));
             localStorage.setItem('db_transaksi', JSON.stringify(state.transaksi));
             localStorage.setItem('db_kas', JSON.stringify(state.kas));
             renderAll();
+
+            // 2. Backup secara otomatis ke Google Sheets di latar belakang
+            if(GOOGLE_SHEETS_URL !== "https://script.google.com/macros/s/AKfycbzUYPb7Ue_JtD1YrEdnhZzJGFysIawD7bsczhX-OsQmCSNeWwo28QtWYZ6rH2gfbAzdRA/exec") {
+                fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(state)
+                }).then(response => {
+                    console.log("Data berhasil di-backup ke Google Sheets");
+                }).catch(err => {
+                    console.log("Menunggu koneksi internet untuk sinkronisasi ke Sheets...", err);
+                });
+            }
         }
 
         // ================= UTILITIES =================
@@ -738,7 +757,7 @@
                 elLabaRugi.classList.add('text-red-600');
             }
 
-            // Render Chart & Top Pelanggan (Sama seperti V3)
+            // Render Chart & Top Pelanggan
             renderDashboardExtras();
         }
 
