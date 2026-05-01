@@ -757,8 +757,10 @@
         function submitAdminPassword() {
             const input = document.getElementById('admin-pass-input').value;
             if(input === ADMIN_PASSWORD) {
-                closeAdminPassword();
-                if(pendingAdminAction) pendingAdminAction(); // Jalankan aksi
+                // Simpan aksi sementara ke variabel lokal agar tidak hilang saat ditutup
+                let actionToRun = pendingAdminAction; 
+                closeAdminPassword(); 
+                if(actionToRun) actionToRun(); // Eksekusi aksi yang tertunda (Membuka form edit)
             } else {
                 showAlert("Password Admin Salah!");
             }
@@ -771,7 +773,7 @@
             localStorage.setItem('db_kas', JSON.stringify(state.kas));
             renderAll();
 
-            if(GOOGLE_SHEETS_URL !== "https://script.google.com/macros/s/AKfycbzUYPb7Ue_JtD1YrEdnhZzJGFysIawD7bsczhX-OsQmCSNeWwo28QtWYZ6rH2gfbAzdRA/exec") {
+            if(GOOGLE_SHEETS_URL !== "") {
                 fetch(GOOGLE_SHEETS_URL, {
                     method: 'POST',
                     body: JSON.stringify(state)
